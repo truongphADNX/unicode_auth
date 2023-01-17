@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Doctors\Auth\LoginController;
+use App\Http\Controllers\Doctors\IndexController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -52,6 +53,11 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 
 Route::prefix('doctors')->name('doctors.')->group(function(){
-    Route::get('login', [LoginController::class, 'login']);
-    Route::post('login', [LoginController::class, 'postLogin']);
+    Route::get('/', [IndexController::class, 'index'])->middleware('auth:doctor');
+    Route::get('login', [LoginController::class, 'login'])->middleware('guest:doctor')->name('login');
+    Route::post('login', [LoginController::class, 'postLogin'])->middleware('guest:doctor');
+    Route::post('logout', function(){
+        Auth::guard('doctor')->logout();
+        return redirect()->route('doctors.login');
+    })->middleware('auth:doctor')->name('logout');
 });
